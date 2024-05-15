@@ -160,7 +160,7 @@ def comeco_programa():
             break
 
         else:
-            print('\033[1;31m**Operação inválida! Digite uma opção novamente#\033[m')
+            print('\033[1;31m**Operação inválida! Digite uma opção novamente**\033[m')
 
 
 comeco_programa()
