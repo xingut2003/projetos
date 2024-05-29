@@ -2,18 +2,21 @@ from abc import ABC, abstractmethod
 
 
 class Conta:
-    def __init__(self, numero, cliente):
+    def __init__(self, numero, usuario):
         self._numero = numero
-        self._cliente = cliente
+        self._cliente = usuario
         self._saldo = 0
         self._agencia = '0001'
         self._historico = Historico()
+
     @property
     def saldo(self):
         return self._saldo
+
     @classmethod
-    def nova_conta(cls, numero, cliente):
-        return cls(numero, cliente)
+    def nova_conta(cls, numero, usuario):
+        return cls(numero, usuario)
+
     def saque(self, valor):
 
         if valor > self.saldo:
@@ -22,7 +25,7 @@ class Conta:
         elif valor > 0:
             self._saldo -= valor
             print('\n\033[0;31m>> Saque realizado com sucesso <<\033[m\n')
-            return True #and self._saldo
+            return True  # and self._saldo
 
         else:
             print('\n\033[0;32m** Valor inválido. Tente novamente **\033[m\n')
@@ -39,21 +42,23 @@ class Conta:
             print('\n\033[0;32m** Valor inválido. Tente novamente **\033[m\n')
             return False
 
-        return True #and self._saldo
+        return True  # and self._saldo
 
     @property
     def numero(self):
         return self._numero
+
     @property
     def agencia(self):
         return self._agencia
+
     @property
     def cliente(self):
         return self._cliente
+
     @property
     def historico(self):
         return self._historico
-
 
 
 class ContaCorrente(Conta):
@@ -65,7 +70,7 @@ class ContaCorrente(Conta):
     def saque(self, valor):
         numero_saques = 0
         for transacao in self.historico.transacoes:
-            if transacao ['operação'] == Saque.__name__:
+            if transacao['operação'] == Saque.__name__:
                 if valor > self._limite_por_saque:
                     print('\n\033[0;31m**O valor ultrapassa do limite por saque de R$500.00 .\033[m\n')
                     return False
@@ -73,11 +78,12 @@ class ContaCorrente(Conta):
                     print('\n\033[1;31m**Você atingiu o limite de saques diários**\033[m\n')
                     return False
                 else:
-                    numero_saques +=1
+                    numero_saques += 1
                     return super().saque(valor) and numero_saques
             return False
- #TODO: Criando as informações dos clientes pelos atributos "numero", "cliente" e "agencia" que pertence
- #TODO: à classe "Conta(pai)" e a classe "ContaCorrente(filha).
+
+    # TODO: Criando as informações dos clientes pelos atributos "numero", "cliente" e "agencia" que pertence
+    # TODO: à classe "Conta(pai)" e a classe "ContaCorrente(filha).
 
     def __str__(self):
         dados = f'''\n
@@ -85,6 +91,7 @@ class ContaCorrente(Conta):
         C/C: {self._numero}
         Titular: {self.cliente._nome}
         '''
+
 
 class Usuario:
     def __init__(self, endereco):
@@ -106,15 +113,20 @@ class Transacao(ABC):
     @abstractmethod
     def registrar(self, conta):
         pass
+
+
 class Saque(Transacao):
     def __init__(self, valor):
         self._valor = valor
+
     @property
     def valor(self):
         return self._valor
+
     def registrar(self, conta):
         if conta.sacar(self.valor):
             conta.historico.adicionar_transacao(self)
+
 
 class Deposito(Transacao):
     def __init__(self, valor):
@@ -127,11 +139,12 @@ class PessoaFisica(Usuario):
         self._cpf = cpf
         self._nome = nome
         self._data_nascimento = data_nascimento
-        
+
+
 class Historico:
     def __init__(self):
         self._transacoes = []
-        
+
     @property
     def transacoes(self):
         return self._transacoes
@@ -144,16 +157,17 @@ class Historico:
             }
         )
 
-def filtro_de_clientes(cpf, clientes):
-    clientes_filtrados = []
 
-    for cliente in clientes:
+def filtro_de_clientes(cpf, usuarios):
+    usuarios_filtrados = []
 
-        if cliente['CPF'] == cpf:
-            clientes_filtrados.append(cliente)
+    for usuario in usuarios:
 
-    if clientes_filtrados:
-        return clientes_filtrados[0]
+        if usuario['CPF'] == cpf:
+            usuarios_filtrados.append(usuario)
+
+    if usuarios_filtrados:
+        return usuarios_filtrados[0]
 
     else:
         return None
