@@ -1,0 +1,119 @@
+import sys
+from emoji import emojize
+
+agenda = {}
+
+
+def cadastrar_filme(codigo_filme, nome_filme, diretor_filme, ano_filme):
+    registros = {}
+    disponibilidade = True
+    registros[codigo_filme] = [nome_filme, diretor_filme, ano_filme, disponibilidade]
+    agenda.update(registros)
+    print("\nCadastro realizado!")
+
+    for k, v in registros.items():
+        print(
+            f"""\n
+      Código: {k}
+
+      Nome: {v[0]}
+
+      Dir.ª: {v[1]}
+
+      Ano: {v[2]}
+
+      Situação: {"\033[32mDisponível\033[m"}
+        """
+        )
+
+    return agenda
+
+
+def consulta(agenda_geral):
+    info = input("Digite uma info do filme a ser buscado: ")
+    resultado = []
+    for k, v in agenda_geral.items():
+        if info.lower() in str(v).lower():
+            resultado.append(info)
+
+            print(
+                f"""\n
+        >> Resultado de Busca <<
+    
+          Código: {k}
+    
+          Nome: {v[0]}
+    
+          Dir.ª: {v[1]}
+    
+          Ano: {v[2]}
+    
+          Situação: {"\033[32mDisponível\033[m" if v[3] == True else "\033[31mIndisponível\033[m\n"}
+        """
+            )
+
+    if len(resultado) == 0:
+        print(f'\nNenhum retorno sobre "{info}"')
+
+    return resultado
+
+
+def emprestimo(agenda_geral):
+    pergunta = input("\nDigite o filme a ser emprestado: ")
+    filme_encotrado = False
+
+    for k, v in agenda.items():
+        if pergunta.lower() in str(v).lower():
+            filme_encotrado = True
+
+            if v[3]:
+                v[3] = False
+                print(
+                    f"\nVocê acabou de alugar {v[0]}! Tenha um ótimo filme!",
+                    emojize(":fairy:"),
+                    emojize(":beaming_face_with_smiling_eyes:"),
+                )
+
+            else:
+                print(f"\n{v[0]} está \033[31mindisponível\033[m.")
+
+    if not filme_encotrado:
+        print(f'\n\033[31m"{pergunta}" não foi encontrado. **\033[m')
+
+    return agenda_geral
+
+
+while True:
+
+    print(
+        """
+   =============================================================
+                       >> MENU <<
+
+    1- Cadastro
+
+    2- Consulta
+
+    3- Empréstimo
+
+    4- Sair
+
+       """
+    )
+    opcao = input(f"\nDigite sua operação: ")
+
+    if opcao == "1":
+        codigo = input("\nDigite o Código: ")
+        nome = input("\nDigite o Nome: ")
+        diretor = input("\nDigite o(a) diretor(a):")
+        ano = input("\nDigite o Ano: ")
+        agenda = cadastrar_filme(codigo, nome, diretor, ano)
+
+    elif opcao == "2":
+        resultados = consulta(agenda)
+
+    elif opcao == "3":
+        agenda = emprestimo(agenda)
+
+    else:
+        sys.exit()
