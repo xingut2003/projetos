@@ -1,0 +1,66 @@
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from fastapi_pagination import Page, add_pagination, paginate
+import models
+import schemas
+import crud
+import database
+from database import SessionLocal, engine
+
+if __name__ == '__main__':
+    import uvicorn.main
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title='WorkoutAPI')
+
+@app.get("/atleta")
+async def get_atleta(nome: str = None, cpf: str = None):
+    if nome:
+        return {"message": f"Nome do atleta: {nome}"}
+
+    elif cpf:
+        return {"message": f"CPF do atleta: {cpf}"}
+
+    else:
+        return {"message": "Favor fornecer o nome ou CPF do atleta"}
+
+
+if __name__ == 'main':
+    import uvicorn
+
+    uvicorn.run('main:app', host='0.0.0.0', port=8000, log_level='info', reload=True)
+
+def get_db():
+   db = SessionLocal()
+   try:
+       yield db
+   finally:
+       db.close()
+
+@app.get("/atletas")
+async def read_atletas(nome: str = None, cpf: str = None, skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db())):
+    atletas = crud.get_atletas(db, nome=nome, cpf=cpf, skip=skip, limit=limit)
+    return atletas
+
+@app.post("/atletas/", response_model=schemas.Atleta)
+def create_atleta(atleta: schemas.AtletaCreate, db: Session = Depends(get_db)):
+   return crud.create_atleta(db=db, atleta=atleta)
+
+@app.get("/atletas/", response_model=Page[schemas.Atleta])
+def read_atletas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+   atletas = crud.get_atletas(db, skip=skip, limit=limit)
+   return paginate(atletas)
+
+@app.get("/atletas/{atleta_id}", response_model=schemas.Atleta)
+def read_atleta(atleta_id: int, db: Session = Depends(get_db)):
+   db_atleta = crud.get_atleta(db, atleta_id=atleta_id)
+   if db_atleta is None:
+       raise HTTPException(status_code=404, detail="Atleta não encontrado")
+   return db_atleta
+
+@app.get("/atletas", response_model=Page[schemas.Atleta])
+async def read_atletas(params: pagination_params):
+    return paginate(database.SessionLocal(), crud.get_atletas, params=params)
+
+add_pagination(app)
