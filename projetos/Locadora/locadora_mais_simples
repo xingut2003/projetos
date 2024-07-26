@@ -1,0 +1,47 @@
+filmes={}
+count=0
+while(count==0):
+    print("Menu:")
+    print("1- Cadastro")
+    print("2- Consulta")
+    print("3- Empréstimo")
+    print("4- Sair")
+    respo=int(input("Digite uma opção: "))
+    if(respo==1):
+        print("CADASTRO")
+        codigo=str(input("Digite o Código: "))
+        nome=str(input("Digite o Nome: "))
+        diretor=str(input("Digite o(a) diretor(a): "))
+        ano=str(input("Digite o Ano:"))
+        disponibilidade="disponível"
+        cadastro={codigo:[nome, diretor, ano, disponibilidade]}
+        filmes.update(cadastro)
+        print(f"Cadastro realizado! {codigo}:{cadastro[codigo]}")
+    elif(respo==2):
+        print("CONSULTA")
+        info = input("Digite uma info do filme a ser buscado: ")
+        print("Resultados da busca:")
+        for chave,elem in filmes.items():
+            if(info==chave or info==elem):
+                print(f"{chave}:{elem}")
+            else:
+                print("Nada encontrado")
+    elif(respo==3):
+        print("EMPRÉSTIMO")
+        dados=str(input("Digite o filme a ser emprestado: "))
+        for chave2,elem2 in filmes.items():
+            if(dados == chave2):
+                if(elem2[3]=="disponível"):
+                    print(f"Filme {chave2} : {elem2}, disponível para empréstimo.")
+                    confirm=str(input("Deseja continuar o empréstimo (s/n)? "))
+                    if(confirm=="s"):
+                        elem2[3]="indisponível"
+                    else:
+                        print("")
+        else:
+            print("Filme indisponível.")
+    elif(respo==4):
+        print("Saindo")
+        count+=1
+    else:
+        print("Opção inválida. Tente novamente.")
